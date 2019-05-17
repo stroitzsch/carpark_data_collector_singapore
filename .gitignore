@@ -1,0 +1,7 @@
+\.idea/
+
+\.vscode/
+
+config.json
+
+data/available_lots.csv
