@@ -67,13 +67,9 @@ try:
                         if_exists='append'
                     )
                     n_skip += 500
-            except (
-                    TimeoutError,
-                    json.decoder.JSONDecodeError,
-                    httplib2.ServerNotFoundError,
-                    KeyError,
-                    ConnectionResetError
-            ):
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
                 # If any API errors, wait some seconds and retry
                 print('Failed: ' + time_stamp.strftime('%Y-%m-%d %H:%M:%S'))
                 print('Waiting to retry...')
