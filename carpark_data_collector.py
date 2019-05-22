@@ -103,7 +103,8 @@ try:
                         header=True,
                         index=False
                     )
-                carparks_new = carparks_new.append(carparks, sort=True)
+                carparks_new = carparks.append(carparks_new, sort=True)
+                carparks_new['CarParkID'] = carparks_new['CarParkID'].astype(str)
                 carparks_new = carparks_new.sort_values('CarParkID')
                 carparks_new = carparks_new.drop_duplicates('CarParkID')
                 carparks_new = carparks_new[['CarParkID', 'Location', 'Agency', 'Development']]
@@ -117,24 +118,24 @@ try:
                 )
 
                 # Reformat data for available_lots (Remove some columns, pivot table)
-                data = data[['Timestamp', 'CarParkID', 'AvailableLots']]
-                data = pd.pivot_table(data, index='Timestamp', columns='CarParkID', values='AvailableLots')
+                available_lots_new = data[['Timestamp', 'CarParkID', 'AvailableLots']]
+                available_lots_new = pd.pivot_table(available_lots_new, index='Timestamp', columns='CarParkID', values='AvailableLots')
                 # Add exisiting data from available_lots CSV
                 try:
                     available_lots = pd.read_csv(
                         os.path.join(os.path.dirname(__file__), 'data', 'available_lots.csv'),
                         index_col='Timestamp'
                     )
-                    data = available_lots.append(data, sort=True)
+                    available_lots_new = available_lots.append(available_lots_new, sort=True)
                 except FileNotFoundError:
                     pass
                 # Resample timestamps to 10 min interval
-                data.index = pd.to_datetime(data.index)
-                data = data.resample('10T').mean().round()
+                available_lots_new.index = pd.to_datetime(available_lots_new.index)
+                available_lots_new = available_lots_new.resample('10T').mean().round()
 
                 # Rewrite available_lots CSV
                 if not is_end_of_week:
-                    data.to_csv(
+                    available_lots_new.to_csv(
                         os.path.join(os.path.dirname(__file__), 'data', 'available_lots.csv'),
                         mode='w',
                         header=True,
@@ -142,14 +143,14 @@ try:
                     )
                 else:
                     # Every Sunday after 23:50:00, create a available_lots CSV for the week
-                    data.to_csv(
+                    available_lots_new.to_csv(
                         os.path.join(
                             os.path.dirname(__file__),
                             'data', (
                                 'available_lots_'
-                                + data.index[0].strftime('%Y-%m-%d')
+                                + available_lots_new.index[0].strftime('%Y-%m-%d')
                                 + '_to_'
-                                + data.index[-1].strftime('%Y-%m-%d')
+                                + available_lots_new.index[-1].strftime('%Y-%m-%d')
                                 + '.csv'
                             )
                         ),
