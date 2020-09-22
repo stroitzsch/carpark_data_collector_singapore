@@ -120,7 +120,9 @@ try:
                 # Reformat data for available_lots (Remove some columns, pivot table)
                 available_lots_new = data[['Timestamp', 'CarParkID', 'AvailableLots']]
                 available_lots_new = pd.pivot_table(available_lots_new, index='Timestamp', columns='CarParkID', values='AvailableLots')
-                # Add exisiting data from available_lots CSV
+                # Remove invalid columns.
+                available_lots_new = available_lots_new.loc[:, available_lots_new.columns.isin(carparks_new['CarParkID'])]
+                # Add existing data from available_lots CSV
                 try:
                     available_lots = pd.read_csv(
                         os.path.join(os.path.dirname(__file__), 'data', 'available_lots.csv'),
