@@ -69,8 +69,9 @@ try:
                     n_skip += 500
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except:
+            except Exception as exception:
                 # If any API errors, wait some seconds and retry
+                print(exception)
                 print('Failed: ' + time_stamp.strftime('%Y-%m-%d %H:%M:%S'))
                 print('Waiting to retry...')
                 time.sleep(30)
